@@ -1,6 +1,6 @@
 ---
 name: obsidian-log
-description: Write a new Obsidian internship log covering all work done since the last log entry.
+description: Write or update Obsidian internship logs — one per project, plus a daily log linking them.
 triggers:
   - obsidian log
   - update obsidian
@@ -17,147 +17,171 @@ allowed-tools:
 
 ## What this skill does
 
-Looks at git commits in the current project repo since the last internship log entry,
-generates a new `internship-log` note covering everything done, and saves it to the vault.
-Also appends a one-liner to the project note's Log section.
+Looks at git commits in the current project repo since the last log entry, writes a
+project-specific log entry, and updates (or creates) the day's daily log with a link to it.
 
 Vault lives at: `~/obsidian/`
-Logs live at: `~/obsidian/1 Projects/Internship/Logs/`
-Project notes live at: `~/obsidian/1 Projects/Internship/Project 1 - Website/`
+Daily logs: `~/obsidian/1 Projects/Internship/Logs/YYYY-MM-DD Daily.md`
+Project logs: `~/obsidian/1 Projects/Internship/Logs/<ProjectFolder>/YYYY-MM-DD.md`
+
+Project folder mapping (update as new projects are added):
+- Website repo → `Website/`
+- Bioreactor repo → `Bioreactor/`
 
 ---
 
 ## Steps
 
-### 1. Find the last log entry
+### 1. Identify the current project
+
+Determine which project the current working directory belongs to (e.g. the website repo maps
+to `Website/`). If it's ambiguous, ask the user.
+
+### 2. Find the last project log entry
 
 ```bash
-ls ~/obsidian/1\ Projects/Internship/Logs/ | sort | tail -5
+ls ~/obsidian/1\ Projects/Internship/Logs/<ProjectFolder>/ | sort | tail -5
 ```
 
-The most recent file's name gives the last-logged date (format: `YYYY-MM-DD Internship Log.md`).
-Extract the date from the filename.
+The most recent file's date gives the last-logged date. Extract it.
 
-### 2. Get all git activity since that date
-
-From the current working directory (the project repo):
+### 3. Get all git activity since that date
 
 ```bash
 git log --since="<last-log-date>" --pretty=format:"%h %ad %s" --date=short
 ```
 
-Also get a file-level summary of what changed:
 ```bash
-git diff <first-commit-after-last-log>..HEAD --stat 2>/dev/null || git log --since="<last-log-date>" --stat --pretty=format:"" | grep -v "^$" | head -40
+git log --since="<last-log-date>" --stat --pretty=format:"" | grep -v "^$" | head -40
 ```
 
-If there are no commits since the last log, say "No new commits since <date>" and stop
-unless the user says to continue anyway.
+If there are no new commits, say so and stop unless the user says to continue anyway.
 
-### 3. Read the current project note for context
+### 4. Read project note for context
 
 Read `~/obsidian/1 Projects/Internship/Project 1 - Website/Project 1 — Website.md`
-to understand the project context and see what the open items are.
+(or the relevant project note) to understand open items and context.
 
-### 4. Determine the note date
+### 5. Check if today's project log already exists
 
-Today's date becomes the new log's date. Check that a log for today doesn't already exist:
 ```bash
-ls ~/obsidian/1\ Projects/Internship/Logs/ | grep $(date +%Y-%m-%d)
+ls ~/obsidian/1\ Projects/Internship/Logs/<ProjectFolder>/ | grep $(date +%Y-%m-%d)
 ```
 
-If one already exists, read it. Then:
-- Only pull git commits that aren't already reflected in the existing note (compare commit
-  hashes / messages against what's already written)
-- Merge the new activity into the existing note by appending bullets to the relevant sections
-  rather than replacing the whole file — e.g. add new items under `🛠️ What I worked on`,
-  new shipped items under `📦 Shipped / Progress`, etc.
-- Do not duplicate content that's already there.
+If it does, read it. Append only new bullets to relevant sections — do not duplicate
+content already there.
 
-### 5. Generate the log content
+### 6. Generate the log content
 
-Using the commits, diffs, and project context, write a rich internship log entry.
-Fill every section — don't leave blanks. Infer from the commit messages and diff stats
-what was worked on, what shipped, and what was learned.
+Write a rich project log using the commits, diffs, and project context.
 
-The note must use this exact template (replace all placeholders):
+Use this exact template:
 
 ```markdown
 ---
 type: internship-log
 date: YYYY-MM-DD
-tags: [internship, log]
+project: <ProjectName>
+tags: [internship, log, <project-slug>]
 ---
 
-# Internship Log — Weekday, Month DD, YYYY
+# <ProjectName> Log — Weekday, Month DD, YYYY
 
-## What I worked on
+## 🛠️ What I worked on
 - ...
 
-## Shipped / Progress
+## 📦 Shipped / Progress
 - ...
 
-## Blockers
+## 🚧 Blockers
 - ...
 
-## People & meetings
+## 🤝 People & meetings
 - ...
 
-## Learned today
+## 📚 Learned today
 - ...
 
-## Wins to remember
+## 🌟 Wins to remember
 - ...
 
-## Next
+## ↪️ Next
 - ...
 ```
 
 Rules:
-- `date:` field is `YYYY-MM-DD` (today's date)
-- Heading uses the full weekday: "Friday, June 27, 2026"
-- No emojis anywhere — plain text section headers only
-- If a section has nothing to fill in (e.g. no blockers, no meetings), write `—` not blank
-- Be specific — name files, components, and techniques, not just "worked on the website"
-- Keep bullets tight: one idea per bullet, no paragraph-length bullets
+- `date:` is `YYYY-MM-DD`; `project:` is the display name (e.g. `Website`)
+- Heading uses full weekday: "Friday, June 27, 2026"
+- Emoji section headers — keep them
+- If a section has nothing, write `—` not blank
+- Be specific: name files, components, techniques
+- One idea per bullet, no paragraph-length bullets
 
-### 6. Show the draft to the user
+### 7. Show the draft to the user
 
-Output the full note content as a markdown code block in your response so the user
-can read it completely. Do this BEFORE calling AskUserQuestion — the question must
-come after the draft is visible, not before.
+Output the full note content as a markdown code block. Do this BEFORE calling
+AskUserQuestion — the question must come after the draft is visible.
 
-Then use AskUserQuestion with three options:
-- **A) Save it** — write the file as-is
-- **B) I want to edit something** — ask what to change, update, then save
+Then use AskUserQuestion:
+- **A) Save it** — write as-is
+- **B) Edit something** — ask what to change, update, then save
 - **C) Cancel** — don't write anything
 
-### 7. Save the log note
+### 8. Save the project log
 
-- If the file is **new**: write to `~/obsidian/1 Projects/Internship/Logs/YYYY-MM-DD Internship Log.md`
-- If the file **already existed**: edit it in place — append the new bullets to the appropriate
-  sections. Do not rewrite sections that haven't changed.
+- New file: write to `~/obsidian/1 Projects/Internship/Logs/<ProjectFolder>/YYYY-MM-DD.md`
+- Existing file: append new bullets to the right sections only
 
-### 8. Update the project note's Log section
+### 9. Update the daily log
 
-Read `~/obsidian/1 Projects/Internship/Project 1 - Website/Project 1 — Website.md`.
+Check if `~/obsidian/1 Projects/Internship/Logs/YYYY-MM-DD Daily.md` exists.
 
-Find the `## 🪵 Log` section and append a new line at the bottom of it:
+**If it exists:** read it and add/update the line for this project under `## Projects`.
+
+**If it doesn't exist:** create it with this template:
+
+```markdown
+---
+type: daily-log
+date: YYYY-MM-DD
+tags: [internship, daily-log]
+---
+
+# Daily Log — Weekday, Month DD, YYYY
+
+## Projects
+
+- [[<ProjectFolder>/YYYY-MM-DD|<emoji> <ProjectName>]] — <one-sentence summary>
+
+## Notes
+- —
 ```
-- YYYY-MM-DD — <one-sentence summary of what shipped today>
+
+The wiki link format is `[[<ProjectFolder>/YYYY-MM-DD|<emoji> <ProjectName>]]` — e.g.
+`[[Website/2026-06-27|🌐 Website]]`.
+
+Emoji suggestions by project:
+- Website → 🌐
+- Bioreactor → 🧪
+
+### 10. Update the project note's Log section
+
+Read the project note and append to `## 🪵 Log`:
+
+```
+- YYYY-MM-DD — <one-sentence summary of what shipped>
 ```
 
-Write the updated project note back.
-
-### 9. Commit the vault
+### 11. Commit the vault
 
 ```bash
-cd ~/obsidian && git add -A && git commit -m "log: <YYYY-MM-DD> internship log — <one-sentence summary>"
+cd ~/obsidian && git add -A && git commit -m "log: YYYY-MM-DD <ProjectName> — <one-sentence summary>"
 ```
 
-### 10. Report
+### 12. Report
 
 Confirm:
-- The log file path that was written
-- The line added to the project note
+- The project log path written
+- The daily log updated/created
+- The project note line appended
 - That the vault was committed
