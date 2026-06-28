@@ -91,31 +91,32 @@ tags: [internship, log]
 
 # Internship Log — Weekday, Month DD, YYYY
 
-## 🛠️ What I worked on
+## What I worked on
 - ...
 
-## 📦 Shipped / Progress
+## Shipped / Progress
 - ...
 
-## 🚧 Blockers
+## Blockers
 - ...
 
-## 🤝 People & meetings
+## People & meetings
 - ...
 
-## 📚 Learned today
+## Learned today
 - ...
 
-## 🌟 Wins to remember
+## Wins to remember
 - ...
 
-## ↪️ Next
+## Next
 - ...
 ```
 
 Rules:
 - `date:` field is `YYYY-MM-DD` (today's date)
 - Heading uses the full weekday: "Friday, June 27, 2026"
+- No emojis anywhere — plain text section headers only
 - If a section has nothing to fill in (e.g. no blockers, no meetings), write `—` not blank
 - Be specific — name files, components, and techniques, not just "worked on the website"
 - Keep bullets tight: one idea per bullet, no paragraph-length bullets
