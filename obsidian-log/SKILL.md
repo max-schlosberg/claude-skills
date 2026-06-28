@@ -65,7 +65,14 @@ Today's date becomes the new log's date. Check that a log for today doesn't alre
 ```bash
 ls ~/obsidian/1\ Projects/Internship/Logs/ | grep $(date +%Y-%m-%d)
 ```
-If one already exists, read it first — ask the user whether to overwrite or append.
+
+If one already exists, read it. Then:
+- Only pull git commits that aren't already reflected in the existing note (compare commit
+  hashes / messages against what's already written)
+- Merge the new activity into the existing note by appending bullets to the relevant sections
+  rather than replacing the whole file — e.g. add new items under `🛠️ What I worked on`,
+  new shipped items under `📦 Shipped / Progress`, etc.
+- Do not duplicate content that's already there.
 
 ### 5. Generate the log content
 
@@ -126,8 +133,9 @@ Then use AskUserQuestion with three options:
 
 ### 7. Save the log note
 
-Write to:
-`~/obsidian/1 Projects/Internship/Logs/YYYY-MM-DD Internship Log.md`
+- If the file is **new**: write to `~/obsidian/1 Projects/Internship/Logs/YYYY-MM-DD Internship Log.md`
+- If the file **already existed**: edit it in place — append the new bullets to the appropriate
+  sections. Do not rewrite sections that haven't changed.
 
 ### 8. Update the project note's Log section
 
