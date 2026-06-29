@@ -43,14 +43,26 @@ line to the current day's `## 📅 Schedule` section in the Obsidian daily note.
 
    If you can't determine start time, ask the user before proceeding.
 
-2. **Create the event** using `mcp__claude_ai_Google_Calendar__create_event`:
+2. **Determine the color** based on the event category:
+
+   | Category | colorId | Color | Examples |
+   |---|---|---|---|
+   | Internship / work meetings | `9` | Blueberry | TNB meetings, All Hands, internship Zooms |
+   | theCoderSchool work shifts | `2` | Sage | "Work" shifts at theCoderSchool |
+   | Social / hobby | `3` | Grape | Outings, games, cEDH, temple, hanging out |
+   | Errands / pickups | `5` | Banana | Food pickup, errands, short logistical stops |
+
+   If the event doesn't fit any category, propose a color to the user before creating it.
+
+3. **Create the event** using `mcp__claude_ai_Google_Calendar__create_event`:
    - `calendarId`: `maxschlosberg@berkeley.edu`
    - `timeZone`: `America/Los_Angeles`
+   - `colorId`: the value from step 2
    - Fill in the parsed fields.
 
-3. **Confirm creation** by reporting the event title, date, and time back to the user.
+4. **Confirm creation** by reporting the event title, date, and time back to the user.
 
-4. **Optionally update the daily note** (only if the event is today):
+5. **Optionally update the daily note** (only if the event is today):
    - Find `/Users/maxschlosberg/obsidian/Daily/YYYY-MM-DD DayName.md` for the event's date.
    - If `## 📅 Schedule` exists, insert the new event line in chronological order within
      that section: `- HH:MM–HH:MM · Title`
