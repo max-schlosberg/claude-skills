@@ -76,14 +76,30 @@ Always compute the absolute date before acting.
 
 ### 4. Handle calendar events
 
+#### Color coding
+
+Assign a `colorId` to every new event based on its category:
+
+| Category | colorId | Color | Examples |
+|---|---|---|---|
+| Internship / work meetings | `9` | Blueberry | TNB project meetings, All Hands, any internship Zoom |
+| theCoderSchool work shifts | `2` | Sage | "Work" shifts at theCoderSchool |
+| Social / hobby | `3` | Grape | Outings, games, cEDH, temple, hanging out |
+| Errands / pickups | `5` | Banana | Food pickup, errands, short logistical stops |
+
+If a new event doesn't fit any category, propose a color to the user before creating it,
+then save the new rule to memory.
+
 For each calendar event:
 
 1. Parse: `summary`, `startTime` (ISO 8601), `endTime` (default +1 hour if not given),
    `location` (optional), `description` (optional).
-2. Call `mcp__claude_ai_Google_Calendar__create_event`:
+2. Determine the `colorId` from the table above.
+3. Call `mcp__claude_ai_Google_Calendar__create_event`:
    - `calendarId`: `maxschlosberg@berkeley.edu`
    - `timeZone`: `America/Los_Angeles`
-3. Add a line to the relevant daily note's `## 📅 Schedule` section:
+   - `colorId`: the value from step 2
+4. Add a line to the relevant daily note's `## 📅 Schedule` section:
    - Format: `- HH:MM–HH:MM · Summary [· location if provided]`
    - Insert in chronological order within the section.
    - If the daily note doesn't exist yet, create it from the Daily Note template
