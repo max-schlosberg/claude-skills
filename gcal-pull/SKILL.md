@@ -32,7 +32,8 @@ the matching Obsidian daily note. Creates the section if it doesn't exist.
 
 1. **Determine the target date:**
    - If the user passed an arg (e.g. `/gcal-pull 2026-06-28`), parse it as the target date.
-   - Otherwise use today's date (`2026-06-27` per context, or derive from the current date).
+   - Otherwise, derive today's date dynamically: run `date +%Y-%m-%d` via Bash. Do NOT use
+     any hardcoded or example date from this file — always derive it at runtime.
 
 2. **List events** using `mcp__claude_ai_Google_Calendar__list_events`:
    - `calendarId`: `maxschlosberg@berkeley.edu`
