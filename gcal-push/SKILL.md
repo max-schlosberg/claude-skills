@@ -48,9 +48,11 @@ line to the current day's `## 📅 Schedule` section in the Obsidian daily note.
    | Category | colorId | Color | Examples |
    |---|---|---|---|
    | Internship / work meetings | `9` | Blueberry | TNB meetings, All Hands, internship Zooms |
-   | theCoderSchool work shifts | `2` | Sage | "Work" shifts at theCoderSchool |
+   | theCoderSchool work shifts | `7` | Peacock | "Work" shifts at theCoderSchool |
    | Social / hobby | `3` | Grape | Outings, games, cEDH, temple, hanging out |
    | Errands / pickups | `5` | Banana | Food pickup, errands, short logistical stops |
+   | Exams | `11` | Tomato | Midterms, finals |
+   | Assignment deadlines | `4` | Flamingo | "DUE: DATA 144 Lab" — 30 min at due time, availability Free |
 
    If the event doesn't fit any category, propose a color to the user before creating it.
 

@@ -1,6 +1,6 @@
 ---
 name: commit-push
-description: Stage, commit, and push in one step — custom or auto-generated message.
+description: Stage, commit, and push in one step. Auto-generates the commit message and pushes immediately by default; pass any flag (e.g. -c) to review/edit the message first.
 triggers:
   - commit and push
   - commit push
@@ -13,14 +13,23 @@ allowed-tools:
 
 ## What this skill does
 
-Stages all changes, commits with a message you provide or approve,
-then immediately pushes to the remote. Combines /commit and /push into one flow.
+Stages all changes, commits, then immediately pushes to the remote.
+By default it auto-generates the commit message and just does it — no
+prompts. Pass any flag as an argument (e.g. `-c`, `-a`, `-confirm` —
+the value doesn't matter, only that it starts with `-`) to instead be
+shown the generated message with a chance to approve, edit, or write
+your own.
 
 ---
 
 ## Steps
 
-### 1. Check there is something to commit
+### 1. Determine mode
+
+- **No argument** → **auto mode** (default): generate the message and push without asking.
+- **Any argument starting with `-`** → **confirm mode**: generate the message, then let the user approve, edit, or replace it before committing.
+
+### 2. Check there is something to commit
 
 ```bash
 git status
@@ -29,27 +38,7 @@ git diff --stat HEAD
 
 If the working tree is clean with nothing staged or untracked, say so and stop.
 
-### 2. Show a brief summary of what will be staged
-
-List the changed files (modified, new, deleted). Keep it short.
-
-### 3. Ask how to handle the commit message
-
-Use AskUserQuestion with two options:
-
-- **A) I'll write the message** — you type it
-- **B) Auto-generate one for me to approve** — generate from the diff, show it, then confirm
-
-### 4A. Custom message path
-
-Ask the user for their commit message, then run:
-
-```bash
-git add -A
-git commit -m "<their message>"
-```
-
-### 4B. Auto-generate path
+### 3. Generate the commit message
 
 Run:
 ```bash
@@ -61,6 +50,20 @@ Read the diff carefully. Write a concise conventional commit message:
 - Format: `type: short summary` (under 72 chars)
 - Types: feat, fix, refactor, chore, docs, style
 - Optional body if the change is non-obvious (blank line after subject, then body)
+
+### 4. Auto mode — just do it
+
+Stage, commit, and push without stopping to ask:
+
+```bash
+git add -A
+git commit -m "<generated message>"
+git push
+```
+
+Skip straight to step 6 to report the result.
+
+### 4′. Confirm mode — review first
 
 Present the generated message to the user exactly as it would be committed.
 Use AskUserQuestion with three options:
@@ -74,6 +77,8 @@ Once approved (A or B):
 git add -A
 git commit -m "<message>"
 ```
+
+Then continue to step 5 (push).
 
 ### 5. Push
 
